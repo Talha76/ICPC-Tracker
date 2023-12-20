@@ -5,7 +5,7 @@ module.exports = (app) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  require("./passport-local.config")(passport);
+  require("./strategies/passport-local.config")(passport);
 
   passport.serializeUser((user, done) => done(null, user._id));
   passport.deserializeUser(async (id, done) => {
