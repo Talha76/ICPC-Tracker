@@ -24,6 +24,10 @@ require("./config/mongoose.config");
 // Routes
 app.use(routers);
 
+// Ejs template engine
+app.set("view engine", "ejs");
+app.set("views", "./views");
+
 // Port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));

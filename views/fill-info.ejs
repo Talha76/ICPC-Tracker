@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <form action="/fill-info" method="post" enctype="multipart/form-data">
+    <input type="text" name="id" id="id" placeholder="Id" required><br>
+    <input type="text" name="name" id="name" placeholder="name" required><br>
+    <input type="text" name="phone" id="phone" placeholder="Phone Number" required><br>
+    <input type="radio" name="role" id="student" value="Student" checked>
+    <label for="student">Student</label>
+    <input type="radio" name="role" id="faculty" value="Faculty">
+    <label for="faculty">Faculty</label><br>
+    <label for="image">Profile Image</label>
+    <input type="file" name="image" id="image" required>
+    <br>
+    <input type="submit" value="Submit">
+  </form>
+</body>
+</html>

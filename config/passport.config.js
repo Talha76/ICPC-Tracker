@@ -6,6 +6,7 @@ module.exports = (app) => {
   app.use(passport.session());
 
   require("./strategies/passport-local.config")(passport);
+  require("./strategies/passport-google-oauth")(passport);
 
   passport.serializeUser((user, done) => done(null, user._id));
   passport.deserializeUser(async (id, done) => {

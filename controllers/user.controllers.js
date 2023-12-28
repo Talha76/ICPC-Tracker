@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
+const mailer = require("../config/mailer");
+const jwt = require("jsonwebtoken");
 
 exports.getUserList = async (req, res) => {
   try {
@@ -7,6 +9,7 @@ exports.getUserList = async (req, res) => {
 
     const ret = [];
     for (const user of users) {
+      if (user.id === undefined) continue;
       ret.push({
         id: user.id,
         email: user.email,
@@ -52,8 +55,8 @@ exports.getUser = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const {id, pass, email} = req.body;
-    let user = await User.findOne({id});
+    const {email, pass} = req.body;
+    let user = await User.findOne({email});
     if (user)
       return res.json({message: "User already exists"});
 
@@ -61,9 +64,8 @@ exports.registerUser = async (req, res) => {
     const hash = bcrypt.hashSync(pass, salt);
 
     user = await User.create({
-      id,
+      email,
       password: hash,
-      email
     });
 
     res.json({
@@ -75,7 +77,14 @@ exports.registerUser = async (req, res) => {
   }
 }
 
-exports.login = (req, res) => res.json({message: "User logged in successfully", user: req.user});
+exports.login = (req, res) => {
+  if (!req.user.id)
+    return res.redirect("/fill-info");
+  res.json({
+    message: "User logged in successfully",
+    user: req.user
+  });
+}
 
 exports.logout = (req, res) => {
   req.logout(() => {});
@@ -84,10 +93,12 @@ exports.logout = (req, res) => {
 
 exports.fillInfo = async (req, res) => {
   try {
-    const {name, phone, isStudent} = req.body;
+    const {id, name, phone, isStudent} = req.body;
+    console.trace(req.file, req.files);
     const image = req.file.filename;
 
     const user = await User.findById(req.user._id);
+    user.id = id;
     user.name = name;
     user.phone = phone;
     user.role = isStudent ? "student" : "teacher";
@@ -101,4 +112,64 @@ exports.fillInfo = async (req, res) => {
 }
 
 exports.getProfile = (req, res) => res.json({message: "User profile retrieved successfully", user: req.user});
+
+exports.getFillInfo = (req, res) => res.render("fill-info");
+
+exports.changePassword = async (req, res) => {
+  try {
+    const {oldPass, newPass} = req.body;
+    const user = await User.findById(req.user._id);
+    const isMatch = bcrypt.compareSync(oldPass, user.password);
+    if (!isMatch)
+      return res.json({message: "Incorrect old password"});
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(newPass, salt);
+    user.password = hash;
+    await user.save();
+    res.json({message: "Password changed successfully"});
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const {email} = req.body;
+
+    const token = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: "5m"});
+
+    const link = `http://localhost:3000/reset-pass?token=${token}`;
+    const html = `<p>Click <a href="${link}">here</a> to reset your password</p>`;
+    const text = `Click here to reset your password: ${link}`;
+    
+    await mailer.sendMail({
+      from: "noreply@gmail.com",
+      to: email,
+      subject: "Password reset",
+      html,
+      text
+    });
+
+    res.json({message: "Password reset email sent successfully"});
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const {token} = req.query;
+    const {pass} = req.body;
+
+    const {email} = jwt.verify(token, process.env.JWT_SECRET);
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(pass, salt);
+    await User.updateOne({email}, {password: hash});
+
+    res.json({message: "Password reset successfully"});
+  } catch (err) {
+    console.error(err);
+  }
+}
 
