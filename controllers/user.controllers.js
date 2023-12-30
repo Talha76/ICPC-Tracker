@@ -93,15 +93,14 @@ exports.logout = (req, res) => {
 
 exports.fillInfo = async (req, res) => {
   try {
-    const {id, name, phone, isStudent} = req.body;
-    console.trace(req.file, req.files);
+    const {id, name, phone, role} = req.body;
     const image = req.file.filename;
 
     const user = await User.findById(req.user._id);
     user.id = id;
     user.name = name;
     user.phone = phone;
-    user.role = isStudent ? "student" : "teacher";
+    user.role = role;
     user.photoPath = image;
     await user.save();
 

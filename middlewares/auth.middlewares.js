@@ -26,3 +26,9 @@ exports.passportMiddleware = (req, res, next) => {
   })(req, res, next);
 }
 
+exports.isFaculty = (req, res, next) => {
+  if (req.user.role === "faculty")
+    return next();
+  res.status(401).json({message: "Access Denied!"});
+}
+
