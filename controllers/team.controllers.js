@@ -32,3 +32,31 @@ exports.registerTeam = async (req, res) => {
   }
 }
 
+exports.uploadTeamContent = async (req, res) => {
+  try {
+    const {teamId} = req.body;
+    const files = req.files;
+
+    const team = await Team.findOne({id: teamId});
+    if (!team) return res.status(404).json({message: "Team not found"});
+
+    for (const file of files) {
+      if (file.mimetype.includes("image")) {
+        team.photos.push(file.filename);
+      } else if (file.mimetype.includes("audio")) {
+        team.audios.push(file.filename);
+      } else if (file.mimetype.includes("video")) {
+        team.videos.push(file.filename);
+      } else {
+        return res.status(400).json({message: "Invalid file type"});
+      }
+    }
+
+    await team.save();
+
+    res.json({message: "Team photo uploaded successfully", team});
+  } catch (err) {
+    console.error(err);
+  }
+}
+

@@ -112,7 +112,7 @@ exports.fillInfo = async (req, res) => {
 
 exports.getProfile = (req, res) => res.json({message: "User profile retrieved successfully", user: req.user});
 
-exports.getFillInfo = (req, res) => res.render("fill-info");
+exports.getFillInfo = (req, res) => res.sendFile("fill-info.html", {root: "./views"});
 
 exports.changePassword = async (req, res) => {
   try {

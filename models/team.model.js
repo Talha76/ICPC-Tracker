@@ -39,7 +39,10 @@ const TeamSchema = new Schema({
     default: false
   },
   preliminaryPosition: Number,
-  onsitePosition: Number
+  onsitePosition: Number,
+  photos: [String],
+  audios: [String],
+  videos: [String]
 });
 
 module.exports = model("Team", TeamSchema);
