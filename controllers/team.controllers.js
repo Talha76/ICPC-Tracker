@@ -1,5 +1,6 @@
 const Team = require("../models/team.model");
 const User = require("../models/user.model");
+const fs = require("fs");
 
 exports.getTeamList = async (req, res) => {
   try {
@@ -24,7 +25,7 @@ exports.registerTeam = async (req, res) => {
       coach: req.user._id,
       members: [member1._id, member2._id, member3._id]
     });
-    await team.save();
+    team.save();
 
     res.json({message: "Team registered successfully", team});
   } catch (err) {
@@ -52,9 +53,33 @@ exports.uploadTeamContent = async (req, res) => {
       }
     }
 
-    await team.save();
+    team.save();
 
     res.json({message: "Team photo uploaded successfully", team});
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.deleteContent = async (req, res) => {
+  try {
+    const {filename} = req.query;
+    const {teamId} = req.params;
+
+    const team = await Team.findOne({id: teamId});
+    if (!team) return res.status(404).json({message: "Team not found"});
+
+    const file = fs.readdirSync("./uploads").find(file => file === filename);
+    if (!file) return res.status(404).json({message: "File not found"});
+
+    team.photos = team.photos.filter(photo => photo !== filename);
+    team.audios = team.audios.filter(audio => audio !== filename);
+    team.videos = team.videos.filter(video => video !== filename);
+    team.save();
+
+    fs.unlink(`./uploads/${filename}`, (err) => console.error(err));
+
+    res.json({message: "Team content deleted successfully", team});
   } catch (err) {
     console.error(err);
   }

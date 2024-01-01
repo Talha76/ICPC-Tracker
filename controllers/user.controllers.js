@@ -93,6 +93,7 @@ exports.logout = (req, res) => {
 
 exports.fillInfo = async (req, res) => {
   try {
+    if (!req.file) return res.status(400).json({message: "Invalid file"});
     const {id, name, phone, role} = req.body;
     const image = req.file.filename;
 
@@ -167,6 +168,27 @@ exports.resetPassword = async (req, res) => {
     await User.updateOne({email}, {password: hash});
 
     res.json({message: "Password reset successfully"});
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.updateInfo = async (req, res) => {
+  try {
+    const {name, phone} = req.body;
+    await User.updateOne({_id: req.user._id}, {name, phone});
+    res.json({message: "User info updated successfully"});
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({message: "Invalid file"});
+    const image = req.file.filename;
+    await User.updateOne({_id: req.user._id}, {photoPath: image});
+    res.json({message: "Avatar uploaded successfully"});
   } catch (err) {
     console.error(err);
   }

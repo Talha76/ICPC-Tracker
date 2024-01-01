@@ -45,10 +45,24 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
+exports.content = multer({
   storage: storage,
   fileFilter: fileFilter,
 });
 
-module.exports = upload;
+exports.avatar = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const validMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+    ]
+    if (validMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  }
+});
 
