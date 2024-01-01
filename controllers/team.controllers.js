@@ -15,9 +15,11 @@ exports.registerTeam = async (req, res) => {
   try {
     const {teamId, teamName, id1, id2, id3} = req.body;
 
-    const member1 = await User.findOne({id: id1});
-    const member2 = await User.findOne({id: id2});
-    const member3 = await User.findOne({id: id3});
+    const [member1, member2, member3] = await Promise.all([
+      User.findOne({id: id1}),
+      User.findOne({id: id2}),
+      User.findOne({id: id3})
+    ]);
 
     const team = new Team({
       id: teamId,
@@ -25,7 +27,7 @@ exports.registerTeam = async (req, res) => {
       coach: req.user._id,
       members: [member1._id, member2._id, member3._id]
     });
-    team.save();
+    await team.save();
 
     res.json({message: "Team registered successfully", team});
   } catch (err) {
@@ -53,7 +55,7 @@ exports.uploadTeamContent = async (req, res) => {
       }
     }
 
-    team.save();
+    await team.save();
 
     res.json({message: "Team photo uploaded successfully", team});
   } catch (err) {
@@ -75,7 +77,7 @@ exports.deleteContent = async (req, res) => {
     team.photos = team.photos.filter(photo => photo !== filename);
     team.audios = team.audios.filter(audio => audio !== filename);
     team.videos = team.videos.filter(video => video !== filename);
-    team.save();
+    await team.save();
 
     fs.unlink(`./uploads/${filename}`, (err) => console.error(err));
 
