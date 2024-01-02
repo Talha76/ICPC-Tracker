@@ -33,8 +33,10 @@ exports.getUser = async (req, res) => {
     const {id} = req.params;
     const user = await User.findOne({id});
 
-    if (!user)
-      return res.status(404).json({message: "User not found"});
+    if (!user) {
+      req.flash("error", "User not found");
+      return res.redirect("/profile");
+    }
 
     const ret = {
       id: user.id,
@@ -57,21 +59,21 @@ exports.registerUser = async (req, res) => {
   try {
     const {email, pass} = req.body;
     let user = await User.findOne({email});
-    if (user)
-      return res.json({message: "User already exists"});
+    if (user) {
+      req.flash("error", "User already exists");
+      return res.redirect("/register-user");
+    }
 
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(pass, salt);
 
-    user = await User.create({
+    await User.create({
       email,
       password: hash,
     });
 
-    res.json({
-      message: "User registered successfully",
-      user
-    });
+    req.flash("success", "User registered successfully");
+    res.redirect("/login");
   } catch (err) {
     console.error(err);
   }
@@ -91,7 +93,10 @@ exports.logout = (req, res) => {
 
 exports.fillInfo = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({message: "Invalid file"});
+    if (!req.file) {
+      req.flash("error", "Please upload an image");
+      return res.redirect("/fill-info");
+    }
     const {id, name, phone, role} = req.body;
     const image = req.file.filename;
 
@@ -103,7 +108,8 @@ exports.fillInfo = async (req, res) => {
     user.photoPath = image;
     await user.save();
 
-    res.json({message: "User info filled successfully", user});
+    req.flash("success", "User info filled successfully");
+    res.redirect("/profile");
   } catch (err) {
     console.error(err);
   }
@@ -111,30 +117,17 @@ exports.fillInfo = async (req, res) => {
 
 exports.getProfile = (req, res) => res.render("profile", {user: req.user, error: req.flash("error")});
 
-exports.getFillInfo = (req, res) => res.sendFile("fill-info.html", {root: "./views"});
-
-exports.changePassword = async (req, res) => {
-  try {
-    const {oldPass, newPass} = req.body;
-    const user = await User.findById(req.user._id);
-    const isMatch = bcrypt.compareSync(oldPass, user.password);
-    if (!isMatch)
-      return res.json({message: "Incorrect old password"});
-
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(newPass, salt);
-    user.password = hash;
-    await user.save();
-    res.json({message: "Password changed successfully"});
-  } catch (err) {
-    console.error(err);
-  }
-}
+exports.getFillInfo = (req, res) => res.render("fill-info", {error: req.flash("error")});
 
 exports.forgotPassword = async (req, res) => {
   try {
     const {email} = req.body;
     const user = await User.findOne({email});
+
+    if (!user) {
+      req.flash("error", "User not found");
+      return res.redirect("/forgot-pass");
+    }
 
     const token = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: "5m"});
 
@@ -209,4 +202,4 @@ exports.getIndex = (req, res) => {
 exports.getLogin = (req, res) => res.render("login", {
   error: req.flash("error"),
   success: req.flash("success")
-})
+});

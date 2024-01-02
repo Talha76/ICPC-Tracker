@@ -6,6 +6,8 @@
   <title>Document</title>
 </head>
 <body>
+    <% if (error.length > 0) %>
+        <p style="color: red"><%= error %></p>
   <form action="/fill-info" method="post" enctype="multipart/form-data">
     <input type="text" name="id" id="id" placeholder="Id" required><br>
     <input type="text" name="name" id="name" placeholder="name" required><br>

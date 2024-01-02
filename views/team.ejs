@@ -8,6 +8,8 @@
 <body>
     <% if (error.length > 0) %>
         <p style="color: red"><%= error %></p>
+    <% if (success.length > 0) %>
+        <p style="color: green"><%= success %></p>
     Team ID: <%= team.id %><br>
     Team Name: <%= team.name %><br>
     Coach Name: <a href="/get-user/<%= coach.id %>"><%= coach.name %></a><br>
@@ -16,15 +18,18 @@
     <% } %>
     Team Photos:<br>
     <% for (const photo of team.photos) { %>
-        <a href="/download/<%= photo %>"><%= photo %></a><br>
+        <a href="/download/<%= photo %>"><%= photo %></a>
+        <a href="/delete/<%= team.id %>?filename=<%= photo %>">delete</a><br>
     <% } %>
     Team Videos:<br>
     <% for (const video of team.videos) { %>
-        <a href="/download/<%= video %>"><%= video %></a><br>
+        <a href="/download/<%= video %>"><%= video %></a>
+        <a href="/delete/<%= team.id %>?filename=<%= photo %>">delete</a><br>
     <% } %>
     Team Audios:<br>
     <% for (const audio of team.audios) { %>
-        <a href="/download/<%= audio %>"><%= audio %></a><br>
+        <a href="/download/<%= audio %>"><%= audio %></a>
+        <a href="/delete/<%= team.id %>?filename=<%= photo %>">delete</a>br>
     <% } %>
 
     <a href="/profile">Back to profile</a> <br>

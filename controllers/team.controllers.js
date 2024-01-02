@@ -1,7 +1,6 @@
 const Team = require("../models/team.model");
 const User = require("../models/user.model");
 const fs = require("fs");
-const exp = require("constants");
 
 exports.getTeamList = async (req, res) => {
   try {
@@ -80,19 +79,26 @@ exports.deleteContent = async (req, res) => {
     const {teamId} = req.params;
 
     const team = await Team.findOne({id: teamId});
-    if (!team) return res.status(404).json({message: "Team not found"});
+    if (!team) {
+      req.flash("error", "Team not found");
+      res.redirect(`/team/${teamId}`);
+    }
 
     const file = fs.readdirSync("./uploads").find(file => file === filename);
-    if (!file) return res.status(404).json({message: "File not found"});
+    if (!file) {
+      req.flash("error", "Files not found");
+      res.redirect(`/team/${teamId}`);
+    }
 
     team.photos = team.photos.filter(photo => photo !== filename);
     team.audios = team.audios.filter(audio => audio !== filename);
     team.videos = team.videos.filter(video => video !== filename);
     await team.save();
 
-    fs.unlink(`./uploads/${filename}`, (err) => console.error(err));
+    fs.unlinkSync(`./uploads/${filename}`);
 
-    res.json({message: "Team content deleted successfully", team});
+    req.flash("success", "Files deleted successfully");
+    res.redirect(`/team/${teamId}`);
   } catch (err) {
     console.error(err);
   }
@@ -116,6 +122,10 @@ exports.getMyTeam = async (req, res) => {
   try {
     const teamList = await Team.find();
     const team = teamList.find(team => team.members.includes(req.user._id));
+    if (!team) {
+      req.flash("error", "User is not registered to any team");
+      res.redirect("/profile");
+    }
     res.redirect(`/team/${team.id}`);
   } catch (err) {
     console.error(err);

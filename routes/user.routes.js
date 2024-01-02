@@ -10,7 +10,6 @@ const {
   fillInfo,
   getProfile,
   getFillInfo,
-  changePassword,
   forgotPassword,
   resetPassword,
   updateInfo,
@@ -27,6 +26,10 @@ const {validateEmail} = require("../middlewares/validators/user");
 router.get("/", getIndex);
 router.get("/get-user-list", getUserList);
 router.get("/get-user/:id", getUser);
+router.get("/register-user", isNotAuthenticated, (req, res) => res.render("register", {
+  success: req.flash("success"),
+  error: req.flash("error"),
+}));
 router.post("/register-user", isNotAuthenticated, registerUser);
 router.get("/login", isNotAuthenticated, getLogin);
 router.post("/login", isNotAuthenticated, passportMiddleware, login);
@@ -36,7 +39,6 @@ router.post("/fill-info", isAuthenticated, avatar.single("image"), fillInfo);
 router.get("/profile", isAuthenticated, getProfile);
 router.get("/auth/google", passport.authenticate("google", {scope: ["profile", "email"]}));
 router.get("/auth/google/callback", passport.authenticate("google", {failureRedirect: "/auth/google"}), login);
-router.post("/change-pass", isAuthenticated, changePassword);
 router.get("/forgot-pass", isNotAuthenticated, (req, res) => res.render("forgot-pass", {
   success: req.flash("success"),
   error: req.flash("error"),

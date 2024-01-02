@@ -8,10 +8,7 @@ const UserSchema = new Schema({
     required: true,
     unique: true
   },
-  phone: {
-    type: String,
-    unique: true
-  },
+  phone: String,
   password: String,
   photoPath: String,
   role: {

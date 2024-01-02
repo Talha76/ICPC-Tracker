@@ -31,7 +31,7 @@ router.get("/upload-team-content", isAuthenticated, isFaculty, (req, res) => res
   error: req.flash("error")
 }));
 router.post("/upload-team-content", isAuthenticated, isFaculty, content.array("contents"), uploadTeamContent);
-router.post("/delete/:teamId", isAuthenticated, isFaculty, deleteContent);
+router.get("/delete/:teamId", isAuthenticated, isFaculty, deleteContent);
 
 module.exports = router;
 

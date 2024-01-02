@@ -10,13 +10,12 @@
         <p style="color: red"><%= error %></p>
     <% if (success.length > 0) %>
         <p style="color: green"><%= success %></p>
-    <form action="/login" method="post">
+    <form action="/register-user" method="post">
         <input type="email" name="email" id="email" placeholder="Email" required><br>
         <input type="password" name="pass" id="pass" required placeholder="Password"><br>
-        <input type="submit" value="Login"><br>
+        <input type="submit" value="Register"><br>
     </form>
-    <a href="/register-user">Register</a><br>
-    <a href="/forgot-pass">Forgot Password?</a><br>
-    <a href="/auth/google">Login With Google</a><br>
+    <a href="/login">Login</a><br>
+    <a href="/auth/google">Register With Google</a><br>
 </body>
 </html>
