@@ -1,6 +1,7 @@
 const Team = require("../models/team.model");
 const User = require("../models/user.model");
 const fs = require("fs");
+const exp = require("constants");
 
 exports.getTeamList = async (req, res) => {
   try {
@@ -29,7 +30,8 @@ exports.registerTeam = async (req, res) => {
     });
     await team.save();
 
-    res.json({message: "Team registered successfully", team});
+    req.flash("success", "Team registered successfully");
+    res.redirect("/register-team");
   } catch (err) {
     console.error(err);
   }
@@ -41,7 +43,14 @@ exports.uploadTeamContent = async (req, res) => {
     const files = req.files;
 
     const team = await Team.findOne({id: teamId});
-    if (!team) return res.status(404).json({message: "Team not found"});
+    if (!team) {
+      req.flash("error", "Team not found");
+      return res.redirect("/upload-team-content");
+    }
+    if (team.coach.toString() !== req.user._id.toString()) {
+      req.flash("error", "You are not the coach of this team");
+      return res.redirect("/upload-team-content");
+    }
 
     for (const file of files) {
       if (file.mimetype.includes("image")) {
@@ -51,13 +60,15 @@ exports.uploadTeamContent = async (req, res) => {
       } else if (file.mimetype.includes("video")) {
         team.videos.push(file.filename);
       } else {
-        return res.status(400).json({message: "Invalid file type"});
+        req.flash("error", "Invalid file type");
+        return res.redirect("/upload-team-content");
       }
     }
 
     await team.save();
 
-    res.json({message: "Team photo uploaded successfully", team});
+    req.flash("success", "Team content uploaded successfully");
+    res.redirect("/upload-team-content");
   } catch (err) {
     console.error(err);
   }
@@ -87,3 +98,61 @@ exports.deleteContent = async (req, res) => {
   }
 }
 
+exports.getMyTeams = async (req, res) => {
+  try {
+    const teamList = await Team.find({coach: req.user._id});
+
+    res.render("my-teams", {
+      teamList,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.getMyTeam = async (req, res) => {
+  try {
+    const teamList = await Team.find();
+    const team = teamList.find(team => team.members.includes(req.user._id));
+    res.redirect(`/team/${team.id}`);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+exports.getTeam = async (req, res) => {
+  try {
+    const {teamId} = req.params;
+    const team = await Team.findOne({id: teamId});
+
+    if (!team) {
+      req.flash("error", "Team not found");
+      return res.redirect("/profile");
+    }
+
+    const coach = await User.findById(team.coach);
+
+    const members = [];
+    for (const _id of team.members) {
+      const user = await User.findById(_id);
+      members.push({
+        id: user.id,
+        name: user.name
+      });
+    }
+
+    res.render("team", {
+      team,
+      coach,
+      members,
+      success: req.flash("success"),
+      error: req.flash("error")
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash("error", err.message);
+    res.redirect("/profile");
+  }
+}

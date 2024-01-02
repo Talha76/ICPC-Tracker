@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% if (error.length > 0) %>
+        <p style="color: red"><%= error %></p>
+    <img height="500" width="500" src="<%= user.photoPath %>"><br>
+    ID: <%= user.id %><br>
+    Name: <%= user.name %><br>
+    Email: <%= user.email %><br>
+    Phone: <%= user.phone %><br>
+    Role: <%= user.role %><br>
+    <% if (user.role === "faculty") { %>
+        <a href="/register-team">Register Team</a><br>
+        <a href="/get-my-teams">Get My Teams</a><br>
+        <a href="/get-team-list">Get All Teams</a><br>
+        <a href="/upload-team-content">Upload Team Content</a><br>
+    <% } else { %>
+        <a href="/get-my-team">Get My Team</a><br>
+        <a href="/get-team-list">Get All Teams</a><br>
+    <% } %>
+    <a href="/update-info">Edit</a><br>
+    <a href="/logout">Logout</a><br>
+</body>
+</html>

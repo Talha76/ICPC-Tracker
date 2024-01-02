@@ -4,7 +4,7 @@ const routers = require("./routers.js");
 const app = express();
 
 // Connect flash
-require("./config/connect-flash.config")(app);
+require("./config/flash.config")(app);
 
 // Morgan
 require("./config/morgan.config")(app);
@@ -21,8 +21,15 @@ require("./config/passport.config")(app);
 // MongoDB
 require("./config/mongoose.config");
 
+// Ejs template engine
+app.set("view engine", "ejs");
+app.set("views", "./views");
+
 // Routes
 app.use(routers);
+
+// Static files
+app.use(express.static("./uploads"));
 
 // Port
 const PORT = process.env.PORT || 5000;

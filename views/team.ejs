@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% if (error.length > 0) %>
+        <p style="color: red"><%= error %></p>
+    Team ID: <%= team.id %><br>
+    Team Name: <%= team.name %><br>
+    Coach Name: <a href="/get-user/<%= coach.id %>"><%= coach.name %></a><br>
+    <% for (const member of members) { %>
+        Member: <a href="/get-user/<%= member.id %>"><%= member.name %></a><br>
+    <% } %>
+    Team Photos:<br>
+    <% for (const photo of team.photos) { %>
+        <a href="/download/<%= photo %>"><%= photo %></a><br>
+    <% } %>
+    Team Videos:<br>
+    <% for (const video of team.videos) { %>
+        <a href="/download/<%= video %>"><%= video %></a><br>
+    <% } %>
+    Team Audios:<br>
+    <% for (const audio of team.audios) { %>
+        <a href="/download/<%= audio %>"><%= audio %></a><br>
+    <% } %>
+
+    <a href="/profile">Back to profile</a> <br>
+    <a href="/logout">Logout</a>
+</body>
+</html>

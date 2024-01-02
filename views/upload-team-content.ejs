@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/upload-team-content" method="POST" enctype="multipart/form-data">
+        <% if (error.length > 0) %>
+            <p style="color: red"><%= error %></p>
+        <% if (success.length > 0) %>
+            <p style="color: green"><%= success %></p>
+        <input type="text" name="teamId" placeholder="Team ID"><br>
+        <input type="file" name="contents" multiple accept="image/* audio/* video/*"><br>
+        <input type="submit" value="Submit"><br>
+    </form><br>
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a>
+</body>
+</html>

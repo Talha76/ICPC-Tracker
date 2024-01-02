@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% if (error.length > 0) %>
+        <p style="color: red"><%= error %></p>
+    <% if (success.length > 0) %>
+        <p style="color: green"><%= success %></p>
+    <form action="/login" method="post">
+        <input type="email" name="email" id="email" placeholder="Email" required><br>
+        <input type="password" name="pass" id="pass" required placeholder="Password"><br>
+        <input type="submit" value="Login"><br>
+    </form>
+    <a href="/forgot-pass">Forgot Password?</a>
+    <a href="/auth/google">Login With Google</a>
+</body>
+</html>

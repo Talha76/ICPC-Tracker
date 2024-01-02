@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% if (error.length > 0) %>
+        <p style="color: red"><%= error %></p>
+    <% if (success.length > 0) %>
+        <p style="color: green"><%= success %></p>
+    <form action="/register-team" method="post">
+        <input type="text" name="teamName" placeholder="Team name" required><br>
+        <input type="text" name="teamId" placeholder="Team ID" required><br>
+        <input type="text" name="id1" placeholder="Member 1 ID" required><br>
+        <input type="text" name="id2" placeholder="Member 2 ID" required><br>
+        <input type="text" name="id3" placeholder="Member 3 ID" required><br>
+        <input type="submit" value="Submit">
+    </form>
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a>
+    <a href="/get-team-list">Get All Teams</a>
+    <a href="/get-my-team">Get My Team</a>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/update-info" method="POST" enctype="multipart/form-data">
+        <% if (success.length > 0) %>
+            <p style="color: green"><%= success %></p>
+        Name: <input type="text" value="<%= user.name %>" name="name"><br>
+        Phone: <input type="text" value="<%= user.phone %>" name="phone"><br>
+        Image: <input type="file" accept="image/*" name="image" id="image">
+        <input type="submit" value="Submit">
+    </form><br>
+    <a href="/profile">Profile</a>
+    <a href="/logout">Logout</a>
+</body>
+</html>

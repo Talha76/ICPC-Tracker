@@ -32,7 +32,7 @@ exports.getUser = async (req, res) => {
   try {
     const {id} = req.params;
     const user = await User.findOne({id});
-    
+
     if (!user)
       return res.status(404).json({message: "User not found"});
 
@@ -80,15 +80,13 @@ exports.registerUser = async (req, res) => {
 exports.login = (req, res) => {
   if (!req.user.id)
     return res.redirect("/fill-info");
-  res.json({
-    message: "User logged in successfully",
-    user: req.user
-  });
+  res.redirect("/profile");
 }
 
 exports.logout = (req, res) => {
   req.logout(() => {});
-  res.json({message: "User logged out successfully"});
+  req.flash("success", "Logged out successfully");
+  res.redirect("/login");
 }
 
 exports.fillInfo = async (req, res) => {
@@ -111,7 +109,7 @@ exports.fillInfo = async (req, res) => {
   }
 }
 
-exports.getProfile = (req, res) => res.json({message: "User profile retrieved successfully", user: req.user});
+exports.getProfile = (req, res) => res.render("profile", {user: req.user, error: req.flash("error")});
 
 exports.getFillInfo = (req, res) => res.sendFile("fill-info.html", {root: "./views"});
 
@@ -136,13 +134,14 @@ exports.changePassword = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
   try {
     const {email} = req.body;
+    const user = await User.findOne({email});
 
     const token = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: "5m"});
 
     const link = `http://localhost:3000/reset-pass?token=${token}`;
     const html = `<p>Click <a href="${link}">here</a> to reset your password</p>`;
     const text = `Click here to reset your password: ${link}`;
-    
+
     await mailer.sendMail({
       from: "noreply@gmail.com",
       to: email,
@@ -151,7 +150,8 @@ exports.forgotPassword = async (req, res) => {
       text
     });
 
-    res.json({message: "Password reset email sent successfully"});
+    req.flash("success", "Password reset email sent successfully");
+    res.redirect("/forgot-pass");
   } catch (err) {
     console.error(err);
   }
@@ -162,12 +162,17 @@ exports.resetPassword = async (req, res) => {
     const {token} = req.query;
     const {pass} = req.body;
 
+    console.trace("query:", req.query);
+    console.trace("body:", req.body);
+    console.trace("params:", req.params);
+
     const {email} = jwt.verify(token, process.env.JWT_SECRET);
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(pass, salt);
     await User.updateOne({email}, {password: hash});
 
-    res.json({message: "Password reset successfully"});
+    req.flash("success", "Password reset successfully");
+    res.redirect("/login");
   } catch (err) {
     console.error(err);
   }
@@ -176,21 +181,32 @@ exports.resetPassword = async (req, res) => {
 exports.updateInfo = async (req, res) => {
   try {
     const {name, phone} = req.body;
-    await User.updateOne({_id: req.user._id}, {name, phone});
-    res.json({message: "User info updated successfully"});
+    const user = await User.findById(req.user._id);
+    const filename = req.file ? req.file.filename : user.photoPath;
+
+    console.trace(name, phone);
+
+    user.name = name;
+    user.phone = phone;
+    user.photoPath = filename;
+    await user.save();
+
+    req.flash("success", "User info updated successfully");
+    res.redirect("/update-info");
   } catch (err) {
     console.error(err);
   }
 }
 
-exports.uploadAvatar = async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({message: "Invalid file"});
-    const image = req.file.filename;
-    await User.updateOne({_id: req.user._id}, {photoPath: image});
-    res.json({message: "Avatar uploaded successfully"});
-  } catch (err) {
-    console.error(err);
+exports.getIndex = (req, res) => {
+  if (req.isAuthenticated()) {
+    if (req.user.id) return res.redirect("/profile");
+    return res.redirect("/fill-info");
   }
+  res.redirect("/login");
 }
 
+exports.getLogin = (req, res) => res.render("login", {
+  error: req.flash("error"),
+  success: req.flash("success")
+})

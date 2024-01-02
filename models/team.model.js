@@ -28,18 +28,6 @@ const TeamSchema = new Schema({
     min: 3,
     unique: true
   },
-  eligible: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  registrationComplete: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  preliminaryPosition: Number,
-  onsitePosition: Number,
   photos: [String],
   audios: [String],
   videos: [String]
